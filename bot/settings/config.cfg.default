@@ -1,0 +1,9 @@
+[bot]
+API_TOKEN =
+
+[database]
+database =
+user =
+password =
+host =
+port =
