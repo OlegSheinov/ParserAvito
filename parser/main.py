@@ -1,7 +1,6 @@
 import uvicorn as uvicorn
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
-from parser.handlers.get_category_ids import get_category
 from parser.handlers.get_city_ids import get_city
 from parser.handlers.get_parameters import get_params
 from parser.utils.database.pydantic_models import DataCity, DataAnnouncementAndParams
@@ -34,11 +33,5 @@ async def get_ad(data: DataAnnouncementAndParams):
     print(data)
 
 
-async def start_parser():
-    # await get_city(session)
-    await get_category()
-
-
 if __name__ == "__main__":
-    # asyncio.run(start_parser())
     uvicorn.run(app, host="0.0.0.0", port=8000)
