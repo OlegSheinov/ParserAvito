@@ -29,7 +29,6 @@ async def get_city_name_and_offer_location(message: Message, state: FSMContext):
                     async with state.proxy() as data:
                         data.update(city_id=city_id['id'])
                     await ParsingOptions.next()
-                    print(data)
                 case 404:
                     text = "Введенный вами город не найден. Повторите попытку!"
                 case _:
@@ -45,6 +44,12 @@ async def request_location(query: CallbackQuery, state: FSMContext):
     markup.add(KeyboardButton(text="Отправить местоположение!", request_location=True))
     await ParsingOptions.next()
     await query.message.answer(text, reply_markup=markup)
+
+
+async def get_location_and_request_radius_call(query: CallbackQuery, state: FSMContext):
+    text = 'Пожалуйста, введите радиус в км от центра вашего города!(укажите 0, если искать во всем городе/регионе)'
+    await query.message.edit_text(text)
+    await state.set_state(ParsingOptions.category)
 
 
 async def get_location_and_request_radius(message: Message, state: FSMContext):
@@ -74,7 +79,7 @@ async def get_radius_and_request_category(message: Message, state: FSMContext):
         async with session.get('http://127.0.0.1:8000/get_main_categories/', json=body) as response:
             categories = await response.json()
     markup.add(
-        *[InlineKeyboardButton(text=category['title'], callback_data=f"category_{category['id']}") for category in
+        *[InlineKeyboardButton(text=category['name'], callback_data=f"_category_{category['id']}") for category in
           categories])
     if isinstance(message, CallbackQuery):
         return await message.message.edit_text(text, reply_markup=markup)
@@ -85,27 +90,41 @@ async def get_radius_and_request_category(message: Message, state: FSMContext):
 async def get_category_and_request_subcategory(query: CallbackQuery, state: FSMContext):
     text = "Выберите подкатегорию, которая вас интересует!"
     async with state.proxy() as data:
-        data.update(categoryId=int(query.data.split("category_")[1]))
+        data.update(categoryId=int(query.data.split("_category_")[1]))
+        try:
+            data.update(parentId=int(query.data.split("_category_")[0]))
+        except ValueError:
+            pass
         if data.get('get_location'):
             body = {
                 "locationId": data.get('city_id'),
                 "geoCoords": [data.get('x'), data.get('y')],
                 "radius": data.get('radius'),
-                "categoryId": data.get('categoryId')
+                "categoryId": data.get('categoryId'),
+                "parentId": data.get('parentId')
             }
         else:
             body = {
                 "locationId": data.get('city_id'),
-                "categoryId": data.get('categoryId')
+                "categoryId": data.get('categoryId'),
+                "parentId": data.get('parentId')
             }
     markup = InlineKeyboardMarkup(row_width=2)
     async with ClientSession() as session:
         async with session.get('http://127.0.0.1:8000/get_subcategories/', json=body) as response:
             subcategories = await response.json()
-    markup.add(
-        *[InlineKeyboardButton(text=category['title'], callback_data=f"category_{category['id']}") for category in
-          subcategories])
-    await ParsingOptions.next()
+    if not subcategories:
+        await ParsingOptions.next()
+        text = f"Хотите ли вы использовать дополнительные параметры поиска??"
+        markup.add(
+            InlineKeyboardButton(text="Да", callback_data="Yes"),
+            InlineKeyboardButton(text="Нет", callback_data="Not"),
+        )
+    else:
+        markup.add(
+            *[InlineKeyboardButton(text=category['name'],
+                                   callback_data=f"{category['forParentId']}_category_{category['id']}") for category in
+              subcategories])
     await query.message.edit_text(text, reply_markup=markup)
 
 

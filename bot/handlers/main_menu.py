@@ -14,6 +14,7 @@ async def send_main_menu_call(query: CallbackQuery, state: FSMContext):
     text = "Тестовое главное меню"
     all_buttons = await get_main_menu_btn(query.message.chat.id)
     markup.add(*all_buttons)
+    await state.reset_data()
     await MainMenu.first()
     await query.message.edit_text(
         text=text,
@@ -28,6 +29,7 @@ async def send_main_menu_msg(message: Message, state: FSMContext):
     text = "Тестовое главное меню"
     all_buttons = await get_main_menu_btn(message.from_id)
     markup.add(*all_buttons)
+    await state.reset_data()
     await MainMenu.first()
     await message.answer(text, reply_markup=markup)
 
