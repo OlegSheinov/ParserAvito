@@ -8,11 +8,12 @@ class DataCity(BaseModel):
 
 
 class DataAnnouncementAndParams(BaseModel):
-    params: Dict[str, int] = None
+    params: str = None
     categoryId: int = None
     locationId: int = None
     geoCoords: Tuple[float, float] = None
     filters: bool = False
+    radius: int = None
     parentId: int = None
 
 
