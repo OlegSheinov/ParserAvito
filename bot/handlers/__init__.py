@@ -36,7 +36,8 @@ def register_scenario_options(dp: Dispatcher):
 
     dp.register_callback_query_handler(get_subcategory_and_offer_filters, lambda q: "Yes" == q.data,
                                        state=ParsingOptions.additional_filters)
-    dp.register_callback_query_handler(get_filters_and_request_keyword, lambda q: "Not" == q.data,
+    dp.register_callback_query_handler(get_filters_and_request_keyword,
+                                       lambda q: (q.data == "Not") | (q.data == "Ready"),
                                        state=ParsingOptions.additional_filters)
 
     dp.register_callback_query_handler(get_keyword_and_request_ad_type, lambda q: "Yes" == q.data,

@@ -111,7 +111,14 @@ async def get_category_and_request_subcategory(query: CallbackQuery, state: FSMC
 
 
 async def get_subcategory_and_offer_filters(query: CallbackQuery, state: FSMContext):
-    pass
+    markup = InlineKeyboardMarkup(row_width=2)
+    markup.add(
+        InlineKeyboardButton(text="Все готово!", callback_data="Ready"),
+    )
+    text = "Тут список кнопок с доп фильтрами, которые будут перенаправлять на редактирование этих параметров. " \
+           "Как это сделать, еще думаю"
+    await ParsingOptions.next()
+    await query.message.edit_text(text, reply_markup=markup)
 
 
 async def get_filters_and_request_keyword(query: CallbackQuery, state: FSMContext):
@@ -122,7 +129,6 @@ async def get_filters_and_request_keyword(query: CallbackQuery, state: FSMContex
         InlineKeyboardButton(text="Нет", callback_data="Not"),
     )
     await ParsingOptions.next()
-    print(await state.get_state())
     await query.message.edit_text(text, reply_markup=markup)
 
 
