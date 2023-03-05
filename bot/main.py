@@ -16,7 +16,6 @@ async def startup(dispatcher: Dispatcher):
     await test(dispatcher)
 
 
-
 @log(info_message="Stop Bot!")
 async def shutdown(dispatcher: Dispatcher):
     await dispatcher.storage.close()
